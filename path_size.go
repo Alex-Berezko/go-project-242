@@ -1,25 +1,27 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"os"
-
-	"github.com/urfave/cli/v3"
 )
 
 func main() {
-	cmd := &cli.Command{
-		Name:  "boom",
-		Usage: "make an explosive entrance",
-		Action: func(context.Context, *cli.Command) error {
-			fmt.Println("hello world")
-			return nil
-		},
+	var patc string
+	fmt.Printf("Введите путь к файлу или директории: ")
+	fmt.Scan(&patc)
+	size, err := GetSize(patc)
+	if err != nil {
+		fmt.Printf("Ошибка: %v\n", err)
+		os.Exit(1)
 	}
 
-	if err := cmd.Run(context.Background(), os.Args); err != nil {
-		log.Fatal(err)
+	fmt.Println(size, patc)
+}
+
+func GetSize(name string) (int64, error) {
+	info, err := os.Stat(name)
+	if err != nil {
+		return 0, err
 	}
+	return info.Size(), nil
 }
