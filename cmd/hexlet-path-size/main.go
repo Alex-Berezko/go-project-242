@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -31,7 +32,7 @@ func main() {
 			&cli.BoolFlag{
 				Name:    "human",
 				Aliases: []string{"h"},
-				Usage:   "print sizes in human readable format (KB, MB, GB)",
+				Usage:   "human-readable sizes (auto-select unit)",
 				Value:   false,
 			},
 		},
@@ -46,7 +47,7 @@ func main() {
 			return nil
 		},
 	}
-
+	flag.Parsed()
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)
 	}
