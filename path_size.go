@@ -1,115 +1,79 @@
-package main
+package pz
 
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
-func main() {
-	var patc string
-	fmt.Printf("Введите путь к файлу или директории: ")
-	fmt.Scan(&patc)
-
-	size, err := GetSize(patc)
-	//sizeHuman := FormatSize(GetSize(size))
-	if err != nil {
-		fmt.Printf("Ошибка: %v\n", err)
-		os.Exit(1)
+func GetPathSize(path string, recursive, all, human bool) (string, error) {
+	var size int64
+	if recursive || all {
+		if recursive {
+			size, err := GetSize(path)
+			return strconv.Quote(strconv.FormatInt(size, 10)), err
+		}
+		if all {
+			size, err := GetSize(path)
+			return strconv.Quote(strconv.FormatInt(size, 10)), err
+		}
 	}
-
-	fmt.Println(size, patc)
+	if human {
+		res, err := HumanReadable(size)
+		return res, err
+	}
+	size, err := GetSize(path)
+	return strconv.Quote(strconv.FormatInt(size, 10)), err
 }
 
 func GetSize(path string) (int64, error) {
-
-	info, err := os.Lstat(path)
-	fmt.Println(info.IsDir())
-
-	if info.IsDir() == false { //тут если это НЕ директория то возвращаем размер файла
-		fmt.Printf("%s - это файл , его размер %v\n", path, uint((info.Size())))
-		return info.Size(), nil
-
-	}
-
-	if info.IsDir() == true { // если это директория нужно это значение передать в функцию для расчета суммы файлов
-		fmt.Printf("%s - это директория \n", path)
-
-		size, err := ReadDir(path)
-		fmt.Printf("это вывод этой команды size - %v, значение err -  %v \n", size, err)
-	}
+	entries, err := os.Lstat(path)
 	if err != nil {
-		fmt.Printf("Произошла ошибка \n")
 		return 0, err
 	}
-
-	return info.Size(), nil
+	if !entries.IsDir() {
+		//fmt.Printf("размер файла %s\n ", path)
+		return entries.Size(), nil
+	}
+	size := ReadDirectory(path)
+	return size, nil
 }
 
-func ReadDir(name string) (int, error) { // по идеи эта функция должна посмотреть директорию
-	entries, err := os.ReadDir(name)
-
+func ReadDirectory(path string) int64 {
+	entries, err := os.ReadDir(path)
 	if err != nil {
-		return 0, err
+		return 0
 	}
-	fmt.Printf("это колличество суммарное папок и файлов в данной дирректории - %v \n", len(entries))
-	fmt.Printf("дальше файлы с отсеянными папками, но остались скрытые файлы \n")
-	for _, file := range entries {
-		if file.IsDir() != true { //отсеяли директории, и видны все файлы, в том числе и скрытые
-			info, err := file.Info()
-			if err != nil {
-				return 0, err
-				continue
-			}
-			//size += info.Size()
-			//fmt.Println(size)
-			fmt.Printf("Файл - %s, его размер - %v \n", file.Name(), info.Size())
-			//totalSize += size
-			//fmt.Printf("общий размер папки - %d", )
-
+	var allSize int64
+	for _, entry := range entries {
+		//fmt.Println("сценарий по проходу на файлам")
+		size, err := GetSize(path + "/" + entry.Name())
+		if err != nil {
+			fmt.Println("ошибки появилась", err)
 		}
-	func FormatSize(size, *human) int {
-		if size < 0 {27}
+		//fmt.Printf("size = %d, path = %s \n", size, path)
+		if !entry.IsDir() {
+			size, _ := GetSize(path + "/" + entry.Name())
+			return size
 		}
-		// а тут должны быть имена всех файлов
-		// допустим на этом этапе вывели содержимое директории, но тут есть папка которая мне не нужна
-		//fmt.Println(file.Info())
+		allSize += size
 	}
-	return len(entries), err
+	fmt.Println("all= ", allSize)
 
-	c := fmt.Sprintf()
-	//func Recursive() { //отсеять файлы с точкой в начале (скрытые файлы)
-	//	entries, err := os.ReadDir(".")
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//
-	//	for _, entry := range entries {
-	//		// Пропускаем файлы, которые начинаются с точки
-	//		if strings.HasPrefix(entry.Name(), ".") {
-	//			continue
-	//		}
-	//
-	//		fmt.Println(entry.Name())
-	//	}
-	//}
+	return allSize
+}
 
-	//func FormatSize(size ) (int64) {
-	//
-	//}
+func HumanReadable(size int64) (string, error) {
+	units := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB"}
+	i := 0
+	sizeHuman := float64(size)
+	for sizeHuman > float64(1024) {
+		sizeHuman = sizeHuman / float64(1024)
+		i++
+	}
+	if i > len(units) {
+		return fmt.Sprintf("%.2f%s", sizeHuman, units[len(units)-1]), nil
+	}
+	return fmt.Sprintf("%.2f%s", sizeHuman, units[i]), nil
 
-	//if err != nil {
-	//	return nil, err
-	//}
-	//for _, fi := range f {
-	//	if fi.IsDir != true {
-	//
-	//	}
-	//}
-	//defer f.Close()
-	//
-	//dirs, err := f.ReadDir(-1)
-	//slices.SortFunc(dirs, func(a, b DirEntry) int {
-	//	return bytealg.CompareString(a.Name(), b.Name())
-	//})
-	//return dirs, err
 }

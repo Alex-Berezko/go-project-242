@@ -1,16 +1,22 @@
 package main
 
 import (
+	pz "code"
 	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/urfave/cli/v3"
 )
 
 func main() {
+	var patc string
+	fmt.Printf("Введите путь к файлу или директории: ")
+	fmt.Scan(&patc)
+
 	cmd := &cli.Command{
 		Name:                   "hexlet-path-size",
 		Usage:                  "print size of a file or directory",
@@ -38,13 +44,12 @@ func main() {
 		},
 
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			recursiveFlag := cmd.Bool("recursive")
-			fmt.Println("recursive:", recursiveFlag)
-			allFlag := cmd.Bool("all")
-			fmt.Println("all:", allFlag)
-			humanFlag := cmd.Bool("human")
-			fmt.Println("human:", humanFlag)
-			return nil
+			res, err := pz.GetPathSize(filepath.Join(patc), cmd.Bool("recursive"), cmd.Bool("all"), cmd.Bool("human"))
+			if err != nil {
+				return err
+			}
+			fmt.Println(res)
+			return err
 		},
 	}
 	flag.Parsed()
