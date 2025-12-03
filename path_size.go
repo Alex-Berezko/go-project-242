@@ -9,23 +9,38 @@ import (
 
 func GetPathSize(path string, recursive, all, human bool) (string, error) {
 	var size int64
-	if recursive || all {
-		if recursive {
-			
-			size, err := Recursive(path)
-			return strconv.Quote(strconv.FormatInt(size, 10)), err
+	var err error
+
+	if recursive {
+		size, err = Recursive(path)
+		if err != nil {
+			return "", err
 		}
-		if all {
-			size, err := GetSizeAll(path)
-			return strconv.Quote(strconv.FormatInt(size, 10)), err
+		if human {
+			return HumanReadable(size)
 		}
+		return strconv.FormatInt(size, 10), nil
+	}
+
+	if all {
+		size, err = GetSizeAll(path)
+		if err != nil {
+			return "", err
+		}
+		if human {
+			return HumanReadable(size)
+		}
+		return strconv.FormatInt(size, 10), nil
+	}
+
+	size, err = GetSize(path)
+	if err != nil {
+		return "", err
 	}
 	if human {
-		res, err := HumanReadable(size)
-		return res, err
+		return HumanReadable(size)
 	}
-	size, err := GetSize(path)
-	return strconv.Quote(strconv.FormatInt(size, 10)), err
+	return strconv.FormatInt(size, 10), nil
 }
 
 func Recursive(path string) (int64, error) {
@@ -46,32 +61,38 @@ func Recursive(path string) (int64, error) {
 				return 0, fmt.Errorf("ошибка чтения директории %s: %w", entry.Name(), err)
 			}
 			totalSize += subDirSize
-			return totalSize, nil
+		} else {
+			totalSize += info.Size()
 		}
-		totalSize += info.Size()
 	}
 	return totalSize, nil
 }
 
 func GetSizeAll(path string) (int64, error) {
-	var allSize, size int64
+	var allSize int64
 
 	entries, err := os.Lstat(path)
 	if err != nil {
 		return 0, err
 	}
 	if entries.IsDir() { //если не директория, то просто возвращает размер файла
-		entries, err := os.ReadDir(path)
+		dirEntries, err := os.ReadDir(path)
 		if err != nil {
 			return 0, err
 		}
-		for _, entry := range entries {
+		for _, entry := range dirEntries {
 			if entry.IsDir() {
+				continue // пропускаем поддиректории
+			}
+			size, err := GetSize(filepath.Join(path, entry.Name()))
+			if err != nil {
 				return 0, err
 			}
-			size, err = GetSize(path + "/" + entry.Name())
+			allSize += size
 		}
-		allSize += size
+	} else {
+		// если это файл, возвращаем его размер
+		return entries.Size(), nil
 	}
 	return allSize, nil
 }
@@ -98,14 +119,16 @@ func ReadDirectory(path string) int64 {
 	}
 	var allSize int64
 	for _, entry := range entries {
-		size, err := GetSize(path + "/" + entry.Name())
-		allSize += size
-		if err != nil {
-			fmt.Println("ошибки появилась", err)
-		}
 		if entry.IsDir() {
-			size := ReadDirectory(path + "/" + entry.Name())
-			return size
+			subDirSize := ReadDirectory(filepath.Join(path, entry.Name()))
+			allSize += subDirSize
+		} else {
+			size, err := GetSize(filepath.Join(path, entry.Name()))
+			if err != nil {
+				fmt.Println("ошибки появилась", err)
+				continue
+			}
+			allSize += size
 		}
 	}
 
@@ -116,13 +139,12 @@ func HumanReadable(size int64) (string, error) {
 	units := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB"}
 	i := 0
 	sizeHuman := float64(size)
-	for sizeHuman > float64(1024) {
+	for sizeHuman >= float64(1024) && i < len(units)-1 {
 		sizeHuman = sizeHuman / float64(1024)
 		i++
 	}
-	if i > len(units) {
+	if i >= len(units) {
 		return fmt.Sprintf("%.2f%s", sizeHuman, units[len(units)-1]), nil
 	}
 	return fmt.Sprintf("%.2f%s", sizeHuman, units[i]), nil
-
 }

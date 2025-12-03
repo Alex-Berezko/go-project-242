@@ -3,20 +3,14 @@ package main
 import (
 	pz "code"
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/urfave/cli/v3"
 )
 
 func main() {
-	var patc string
-	fmt.Printf("Введите путь к файлу или директории: ")
-	fmt.Scan(&patc)
-
 	cmd := &cli.Command{
 		Name:                   "hexlet-path-size",
 		Usage:                  "print size of a file or directory",
@@ -44,15 +38,21 @@ func main() {
 		},
 
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			res, err := pz.GetPathSize(filepath.Join(patc), cmd.Bool("recursive"), cmd.Bool("all"), cmd.Bool("human"))
+			args := cmd.Args()
+			if args.Len() == 0 {
+				return fmt.Errorf("путь к файлу или директории не указан")
+			}
+			path := args.Get(0)
+
+			res, err := pz.GetPathSize(path, cmd.Bool("recursive"), cmd.Bool("all"), cmd.Bool("human"))
 			if err != nil {
 				return err
 			}
 			fmt.Println(res)
-			return err
+			return nil
 		},
 	}
-	flag.Parsed()
+
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)
 	}
