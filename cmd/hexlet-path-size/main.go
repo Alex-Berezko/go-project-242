@@ -37,7 +37,7 @@ func main() {
 			},
 			&cli.BoolFlag{
 				Name:    "human",
-				Aliases: []string{"h"},
+				Aliases: []string{"H"},
 				Usage:   "human-readable sizes (auto-select unit)",
 				Value:   false,
 			},
