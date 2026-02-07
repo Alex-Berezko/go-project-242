@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	pz "code"
+	"code"
 )
 
 func TestGetPathSize_File(t *testing.T) {
@@ -15,7 +15,7 @@ func TestGetPathSize_File(t *testing.T) {
 	testFile := filepath.Join("..", "testdata", "this_file.md")
 
 	// Получаем размер файла через GetSize()
-	size, err := pz.GetSize(testFile)
+	size, err := code.GetSize(testFile)
 	require.NoError(t, err)
 
 	// Получаем реальный размер файла для проверки

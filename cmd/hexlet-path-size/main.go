@@ -1,7 +1,7 @@
 package main
 
 import (
-	pz "code"
+	"code"
 	"context"
 	"fmt"
 	"log"
@@ -44,7 +44,7 @@ func main() {
 			}
 			path := args.Get(0)
 
-			res, err := pz.GetPathSize(path, cmd.Bool("recursive"), cmd.Bool("all"), cmd.Bool("human"))
+			res, err := code.GetPathSize(path, cmd.Bool("recursive"), cmd.Bool("all"), cmd.Bool("human"))
 			if err != nil {
 				return err
 			}

@@ -1,4 +1,4 @@
-package pz
+package code
 
 import (
 	"fmt"
