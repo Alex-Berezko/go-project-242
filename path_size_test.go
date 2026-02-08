@@ -1,4 +1,4 @@
-package tests
+package code
 
 import (
 	"os"
@@ -6,16 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"code"
 )
 
 func TestGetPathSize_File(t *testing.T) {
 	// Тест для одного файла - проверяем, что размер соответствует реальному размеру файла
-	testFile := filepath.Join("..", "testdata", "this_file.md")
+	testFile := filepath.Join("..", "path_size.go", "README.md")
 
 	// Получаем размер файла через GetSize()
-	size, err := code.GetSize(testFile)
+	size, err := GetPathSize(testFile, true, false, false)
 	require.NoError(t, err)
 
 	// Получаем реальный размер файла для проверки
