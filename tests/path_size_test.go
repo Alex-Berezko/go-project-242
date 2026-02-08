@@ -1,6 +1,7 @@
-package code
+package tests
 
 import (
+	"code"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,7 +14,7 @@ func TestGetPathSize_File(t *testing.T) {
 	testFile := filepath.Join("..", "path_size.go", "README.md")
 
 	// Получаем размер файла через GetSize()
-	size, err := GetPathSize(testFile, true, false, false)
+	size, err := code.GetPathSize(testFile, true, false, false)
 	require.NoError(t, err)
 
 	// Получаем реальный размер файла для проверки
