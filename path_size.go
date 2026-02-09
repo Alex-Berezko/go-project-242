@@ -73,35 +73,35 @@ func GetPathSize(path string, recursive, all, human bool) (string, error) {
 //	return totalSize, nil
 //}
 
-func getSizeAll(path string) (int64, error) {
-	//	var allSize int64
-	//
-	//	fileInfo, err := os.Lstat(path)
-	//	if err != nil {
-	//		return 0, err
-	//	}
-	//
-	//	if !fileInfo.IsDir() {
-	//		return fileInfo.Size(), nil
-	//	}
-	//	//если не директория, то просто возвращает размер файла
-	//	dirEntries, err := os.ReadDir(path)
-	//	if err != nil {
-	//		return 0, err
-	//	}
-	//	for _, entry := range dirEntries {
-	//		if entry.IsDir() {
-	//			continue // пропускаем поддиректории
-	//		}
-	//		size, errgetSize := getSize(filepath.Join(path, entry.Name()))
-	//		if errgetSize != nil {
-	//			return 0, errgetSize
-	//		}
-	//		allSize += size
-	//	}
-	//
-	//	return allSize, nil
-}
+//func getSizeAll(path string) (int64, error) {
+//	var allSize int64
+//
+//	fileInfo, err := os.Lstat(path)
+//	if err != nil {
+//		return 0, err
+//	}
+//
+//	if !fileInfo.IsDir() {
+//		return fileInfo.Size(), nil
+//	}
+//	//если не директория, то просто возвращает размер файла
+//	dirEntries, err := os.ReadDir(path)
+//	if err != nil {
+//		return 0, err
+//	}
+//	for _, entry := range dirEntries {
+//		if entry.IsDir() {
+//			continue // пропускаем поддиректории
+//		}
+//		size, errgetSize := getSize(filepath.Join(path, entry.Name()))
+//		if errgetSize != nil {
+//			return 0, errgetSize
+//		}
+//		allSize += size
+//	}
+//
+//	return allSize, nil
+//}
 
 func getSize(path string, all, recursive bool) (int64, error) {
 	fileInfo, err := os.Lstat(path)
