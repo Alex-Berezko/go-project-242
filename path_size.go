@@ -33,8 +33,10 @@ func GetPathSize(path string, recursive, all, human bool) (string, error) {
 	//	}
 	//	return strconv.FormatInt(size, 10), nil
 	//}
+
 	size, err = getSize(path, all, recursive)
 	if err != nil {
+
 		return "", err
 	}
 
@@ -71,35 +73,35 @@ func GetPathSize(path string, recursive, all, human bool) (string, error) {
 //	return totalSize, nil
 //}
 
-//func getSizeAll(path string) (int64, error) {
-//	var allSize int64
-//
-//	fileInfo, err := os.Lstat(path)
-//	if err != nil {
-//		return 0, err
-//	}
-//
-//	if !fileInfo.IsDir() {
-//		return fileInfo.Size(), nil
-//	}
-//	//если не директория, то просто возвращает размер файла
-//	dirEntries, err := os.ReadDir(path)
-//	if err != nil {
-//		return 0, err
-//	}
-//	for _, entry := range dirEntries {
-//		if entry.IsDir() {
-//			continue // пропускаем поддиректории
-//		}
-//		size, errgetSize := getSize(filepath.Join(path, entry.Name()))
-//		if errgetSize != nil {
-//			return 0, errgetSize
-//		}
-//		allSize += size
-//	}
-//
-//	return allSize, nil
-//}
+func getSizeAll(path string) (int64, error) {
+	//	var allSize int64
+	//
+	//	fileInfo, err := os.Lstat(path)
+	//	if err != nil {
+	//		return 0, err
+	//	}
+	//
+	//	if !fileInfo.IsDir() {
+	//		return fileInfo.Size(), nil
+	//	}
+	//	//если не директория, то просто возвращает размер файла
+	//	dirEntries, err := os.ReadDir(path)
+	//	if err != nil {
+	//		return 0, err
+	//	}
+	//	for _, entry := range dirEntries {
+	//		if entry.IsDir() {
+	//			continue // пропускаем поддиректории
+	//		}
+	//		size, errgetSize := getSize(filepath.Join(path, entry.Name()))
+	//		if errgetSize != nil {
+	//			return 0, errgetSize
+	//		}
+	//		allSize += size
+	//	}
+	//
+	//	return allSize, nil
+}
 
 func getSize(path string, all, recursive bool) (int64, error) {
 	fileInfo, err := os.Lstat(path)
@@ -121,15 +123,23 @@ func getSize(path string, all, recursive bool) (int64, error) {
 func readDirectory(path string, all, recursive bool) (int64, error) {
 	dirEntries, err := os.ReadDir(path)
 	if err != nil {
-		return 1, errors.New("произошла ошибка чтения дирректории")
+		return 1, errors.New("произошла ошибка чтения директории")
 	}
 
 	var allSize int64
 	for _, entry := range dirEntries {
 		isHidden := strings.HasPrefix(entry.Name(), ".")
-		if !all && isHidden {
-			continue
+		if all && isHidden {
+			allDirectory, errAllDir := readDirectory(filepath.Join(path, entry.Name()), all, recursive)
+			if errAllDir != nil {
+				continue
+			}
+			allSize += allDirectory
+			//continue // допустим у меня и то и то условие выполняется тогда нужно начинать читать скрытые директории и файлы
+			// получается мне тут не continue нужен, а функция которая пойдет по скрытым файлам
+			//getSize(path + "/" + entry.Name())
 		}
+
 		if entry.IsDir() {
 			subDirSize, errReadDir := readDirectory(filepath.Join(path, entry.Name()), all, recursive)
 			if errReadDir != nil {
@@ -157,6 +167,7 @@ func humanReadable(size int64) (string, error) {
 		i++
 	}
 	if i >= len(units) {
+
 		return fmt.Sprintf("%.1f%s", sizeHuman, units[len(units)-1]), nil
 	}
 	return fmt.Sprintf("%.1f%s", sizeHuman, units[i]), nil
