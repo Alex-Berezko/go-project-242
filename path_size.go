@@ -44,64 +44,8 @@ func GetPathSize(path string, recursive, all, human bool) (string, error) {
 		return humanReadable(size)
 	}
 
-	//result :=
 	return fmt.Sprintf("%vB", size), nil
 }
-
-//func recursiveFile(path string) (int64, error) {
-//	entries, err := os.ReadDir(path)
-//	if err != nil {
-//		return 0, fmt.Errorf("ошибка чтения директории %s: %w", path, err)
-//	}
-//	var totalSize int64
-//	for _, entry := range entries {
-//		info, err := entry.Info()
-//		if err != nil {
-//			return 0, fmt.Errorf("ошибка чтения директории %s: %w", entry.Name(), err)
-//		}
-//		if entry.IsDir() {
-//			subDirPatc := filepath.Join(path, entry.Name())
-//			subDirSize, err := recursiveFile(subDirPatc)
-//			if err != nil {
-//				return 0, fmt.Errorf("ошибка чтения директории %s: %w", entry.Name(), err)
-//			}
-//			totalSize += subDirSize
-//		} else {
-//			totalSize += info.Size()
-//		}
-//	}
-//	return totalSize, nil
-//}
-
-//func getSizeAll(path string) (int64, error) {
-//	var allSize int64
-//
-//	fileInfo, err := os.Lstat(path)
-//	if err != nil {
-//		return 0, err
-//	}
-//
-//	if !fileInfo.IsDir() {
-//		return fileInfo.Size(), nil
-//	}
-//	//если не директория, то просто возвращает размер файла
-//	dirEntries, err := os.ReadDir(path)
-//	if err != nil {
-//		return 0, err
-//	}
-//	for _, entry := range dirEntries {
-//		if entry.IsDir() {
-//			continue // пропускаем поддиректории
-//		}
-//		size, errgetSize := getSize(filepath.Join(path, entry.Name()))
-//		if errgetSize != nil {
-//			return 0, errgetSize
-//		}
-//		allSize += size
-//	}
-//
-//	return allSize, nil
-//}
 
 func getSize(path string, all, recursive bool) (int64, error) {
 	fileInfo, err := os.Lstat(path)
@@ -135,9 +79,6 @@ func readDirectory(path string, all, recursive bool) (int64, error) {
 				continue
 			}
 			allSize += allDirectory
-			//continue // допустим у меня и то и то условие выполняется тогда нужно начинать читать скрытые директории и файлы
-			// получается мне тут не continue нужен, а функция которая пойдет по скрытым файлам
-			//getSize(path + "/" + entry.Name())
 		}
 
 		if entry.IsDir() {
@@ -149,6 +90,9 @@ func readDirectory(path string, all, recursive bool) (int64, error) {
 		} else {
 			size, errGetSize := getSize(filepath.Join(path, entry.Name()), all, recursive)
 			if errGetSize != nil {
+				continue
+			}
+			if isHidden {
 				continue
 			}
 			allSize += size

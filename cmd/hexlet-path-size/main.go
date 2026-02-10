@@ -43,9 +43,8 @@ func main() {
 				return fmt.Errorf("путь к файлу или директории не указан")
 			}
 			path := args.Get(0)
-			//path := "/Volumes/Storage/golang/go-project-242/testdata"
-
 			res, err := code.GetPathSize(path, cmd.Bool("recursive"), cmd.Bool("all"), cmd.Bool("human"))
+
 			if err != nil {
 				return err
 			}
