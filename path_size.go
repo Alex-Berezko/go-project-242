@@ -8,10 +8,10 @@ import (
 	"strings"
 )
 
-func GetPathSize(path string, recursive, all, human bool) (string, error) {
+func GetPathSize(path string, recursive, human, all bool) (string, error) {
 	var size int64
 	var err error
-	
+
 	size, err = getSize(path, all, recursive)
 	if err != nil {
 
