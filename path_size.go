@@ -11,29 +11,7 @@ import (
 func GetPathSize(path string, recursive, all, human bool) (string, error) {
 	var size int64
 	var err error
-
-	//if recursive {
-	//	size, err = recursiveFile(path)
-	//	if err != nil {
-	//		return "", err
-	//	}
-	//	if human {
-	//		return humanReadable(size)
-	//	}
-	//	return strconv.FormatInt(size, 10), nil
-	//}
-	//
-	//if all {
-	//	size, err = getSizeAll(path)
-	//	if err != nil {
-	//		return "", err
-	//	}
-	//	if human {
-	//		return humanReadable(size)
-	//	}
-	//	return strconv.FormatInt(size, 10), nil
-	//}
-
+	
 	size, err = getSize(path, all, recursive)
 	if err != nil {
 
@@ -73,32 +51,31 @@ func readDirectory(path string, all, recursive bool) (int64, error) {
 	var allSize int64
 	for _, entry := range dirEntries {
 		isHidden := strings.HasPrefix(entry.Name(), ".")
-		if all && isHidden {
-			allDirectory, errAllDir := readDirectory(filepath.Join(path, entry.Name()), all, recursive)
-			if errAllDir != nil {
+		if !all && isHidden {
+			continue
+		}
+		if entry.IsDir() {
+			if !recursive {
 				continue
 			}
-			allSize += allDirectory
-		}
-
-		if entry.IsDir() {
+			//зайти внутрь и сумировать
 			subDirSize, errReadDir := readDirectory(filepath.Join(path, entry.Name()), all, recursive)
 			if errReadDir != nil {
 				continue
 			}
 			allSize += subDirSize
-		} else {
-			size, errGetSize := getSize(filepath.Join(path, entry.Name()), all, recursive)
-			if errGetSize != nil {
-				continue
-			}
-			if isHidden {
-				continue
-			}
-			allSize += size
-		}
-	}
 
+		}
+
+		if !entry.IsDir() {
+			entryInfo, errEntryInfo := entry.Info()
+			if errEntryInfo != nil {
+				continue
+			}
+			allSize += entryInfo.Size()
+		}
+
+	}
 	return allSize, nil
 }
 
