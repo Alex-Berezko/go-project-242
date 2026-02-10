@@ -87,9 +87,9 @@ func humanReadable(size int64) (string, error) {
 		sizeHuman = sizeHuman / float64(1024)
 		i++
 	}
-	if i >= len(units) {
-
-		return fmt.Sprintf("%.1f%s", sizeHuman, units[len(units)-1]), nil
+	if i >= 1 {
+		return fmt.Sprintf("%.1f%s", sizeHuman, units[i]), nil
 	}
+
 	return fmt.Sprintf("%.f%s", sizeHuman, units[i]), nil
 }
