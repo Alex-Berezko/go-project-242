@@ -11,8 +11,9 @@ import (
 )
 
 func TestGetPathSize_File(t *testing.T) {
+	testDir := t.TempDir()
 
-	testFile := filepath.Join("/home/runner/work/go-project-242/tests/path_size_test.go")
+	testFile := filepath.Join(testDir, "testFile.txt")
 
 	size, err := code.GetPathSize(testFile, true, false, false)
 	require.NoError(t, err)
