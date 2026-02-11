@@ -2,6 +2,7 @@ package tests
 
 import (
 	"code"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -10,18 +11,16 @@ import (
 )
 
 func TestGetPathSize_File(t *testing.T) {
-	// Тест для одного файла - проверяем, что размер соответствует реальному размеру файла
-	testFile := filepath.Join("..", "path_size.go", "/tests")
 
-	// Получаем размер файла через GetSize()
+	testFile := filepath.Join("/Volumes/Storage/golang//go-project-242/tests/path_size_test.go")
+
 	size, err := code.GetPathSize(testFile, true, false, false)
 	require.NoError(t, err)
 
-	// Получаем реальный размер файла для проверки
 	info, err := os.Stat(testFile)
 	require.NoError(t, err)
-	expectedSize := info.Size()
 
-	// Убеждаемся, что результат соответствует сумме размеров (для файла это просто размер файла)
+	expectedSize := fmt.Sprintf("%dB", info.Size())
+
 	require.Equal(t, expectedSize, size, "размер файла должен соответствовать реальному размеру")
 }
