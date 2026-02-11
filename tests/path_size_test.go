@@ -15,7 +15,9 @@ func TestGetPathSize_File(t *testing.T) {
 	testFile := filepath.Join(testDir, "testFile.txt")
 	testContent := []byte("Hello World, Hello Hexlet!")
 	err := os.WriteFile(testFile, testContent, 0644)
-
+	if err != nil {
+		t.Fatalf("не удалось записать текст в файл %v", err)
+	}
 	size, errSize := code.GetPathSize(testFile, true, false, false)
 	require.NoError(t, errSize)
 
